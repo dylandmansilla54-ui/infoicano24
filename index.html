@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sitio de noticias locales e internacionales con sección de clasificados para publicar artículos">
+    <meta name="keywords" content="noticias, actualidad, clasificados, periódico digital, artículos">
+    <meta name="author" content="Noticias-Online">
+    <title>Noticias Online - Información confiable y clasificados</title>
+    <!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto+Slab:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="images/periodico (1).png">
+</head>
+<body>
+    <!-- Header y Navegación -->
+    <header class="main-header">
+        <div class="container header-container">
+            <div class="logo">
+                <a href="#">
+                    <h1><span class="logo-highlight">Noticias</span> Online</h1>
+                    <p class="tagline">Información confiable en tiempo real</p>
+                </a>
+            </div>
+            
+            <nav class="main-nav">
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <ul class="nav-list" id="navList">
+                    <li><a href="#inicio" class="active">Inicio</a></li>
+                    <li><a href="#noticias">Noticias</a></li>
+                    <li><a href="#clasificados">Clasificados</a></li>
+                    <li><a href="#adminPanel">Admin</a></li>
+                    <li><a href="#suscribirse">Suscribirse</a></li>
+                    <li><a href="#contacto">Contacto</a></li>
+                </ul>
+            </nav>
+            
+            <div class="user-actions">
+                <button class="btn btn-outline" id="loginBtn">Iniciar Sesión</button>
+                <button class="btn btn-primary" id="signupBtn">Registrarse</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Sección Hero -->
+    <section class="hero" id="inicio">
+        <div class="container hero-container">
+            <div class="hero-content">
+                <h2>Mantente informado con las noticias más relevantes</h2>
+                <p>Actualidad local, nacional e internacional con verificación de fuentes y cobertura en tiempo real.</p>
+                <div class="cta-buttons">
+                    <a href="#noticias" class="btn btn-primary">Ver Noticias</a>
+                    <a href="#suscribirse" class="btn btn-secondary">Suscribirse Ahora</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <img src="https://images.unsplash.com/photo-1588681664899-f142ff2dc9b1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Persona leyendo noticias digitales" loading="lazy">
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección de Redes Sociales -->
+    <section class="social-section">
+        <div class="container">
+            <h3>Síguenos en nuestras redes</h3>
+            <div class="social-buttons">
+                <a href="https://facebook.com/tuperfil" target="_blank" class="social-btn facebook">
+                    <i class="fab fa-facebook-f"></i> Facebook
+                </a>
+                <a href="https://instagram.com/tuperfil" target="_blank" class="social-btn instagram">
+                    <i class="fab fa-instagram"></i> Instagram
+                </a>
+            </div>
+            <p class="social-info">Mantente actualizado con nuestro contenido exclusivo en redes sociales</p>
+        </div>
+    </section>
+
+    <!-- Sección de Noticias Destacadas -->
+    <section class="featured-news" id="noticias">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Noticias Destacadas</h2>
+                
+                <!-- Controles de administración (solo visible para admin) -->
+                <div class="admin-controls" id="adminControls" style="display: none;">
+                    <button class="btn btn-admin" id="addNewsBtn">
+                        <i class="fas fa-plus"></i> Nueva Noticia
+                    </button>
+                    <div class="admin-info" id="adminInfo"></div>
+                </div>
+            </div>
+            
+            <!-- Formulario para agregar/editar noticias (solo para admin) -->
+            <div class="news-form-container" id="newsFormContainer" style="display: none;">
+                <h3>Gestionar Noticia</h3>
+                <form id="newsForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="newsTitle">Título *</label>
+                            <input type="text" id="newsTitle" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="newsCategory">Categoría *</label>
+                            <select id="newsCategory" required>
+                                <option value="">Selecciona categoría</option>
+                                <option value="tecnologia">Tecnología</option>
+                                <option value="medio-ambiente">Medio Ambiente</option>
+                                <option value="economia">Economía</option>
+                                <option value="politica">Política</option>
+                                <option value="deportes">Deportes</option>
+                                <option value="cultura">Cultura</option>
+                                <option value="salud">Salud</option>
+                                <option value="internacional">Internacional</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="newsExcerpt">Resumen *</label>
+                        <textarea id="newsExcerpt" rows="3" required maxlength="200"></textarea>
+                        <small class="char-count">Caracteres: <span id="excerptCount">0</span>/200</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="newsContent">Contenido Completo *</label>
+                        <textarea id="newsContent" rows="6" required></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="newsImage">Imagen (URL) *</label>
+                            <input type="text" id="newsImage" required 
+                                   placeholder="https://ejemplo.com/imagen.jpg">
+                            <small>Recomendado: 800x600px, formato JPG/PNG</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="newsAuthor">Autor *</label>
+                            <input type="text" id="newsAuthor" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="newsTags">Etiquetas (separadas por comas)</label>
+                        <input type="text" id="newsTags" placeholder="tecnologia, innovación, ciencia">
+                    </div>
+                    
+                    <div class="form-group form-checkbox">
+                        <input type="checkbox" id="newsFeatured" checked>
+                        <label for="newsFeatured">Destacar esta noticia</label>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" id="newsSubmitBtn">Publicar Noticia</button>
+                        <button type="button" class="btn btn-outline" id="cancelNewsBtn">Cancelar</button>
+                        <button type="button" class="btn btn-danger" id="deleteNewsBtn" style="display: none;">
+                            <i class="fas fa-trash"></i> Eliminar Noticia
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Grid de noticias -->
+            <div class="news-grid" id="newsGrid">
+                <!-- Las noticias se cargarán dinámicamente aquí -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Panel de Administración -->
+    <section class="admin-panel" id="adminPanel" style="display: none;">
+        <div class="container">
+            <h2 class="section-title">Panel de Administración</h2>
+            
+            <div class="admin-stats" id="adminStats">
+                <!-- Las estadísticas se cargarán dinámicamente -->
+            </div>
+            
+            <div class="admin-actions">
+                <h3>Acciones Rápidas</h3>
+                <div class="action-buttons">
+                    <button class="btn btn-admin" id="manageUsersBtn">
+                        <i class="fas fa-users"></i> Gestionar Usuarios
+                    </button>
+                    <button class="btn btn-admin" id="viewStatsBtn">
+                        <i class="fas fa-chart-bar"></i> Ver Estadísticas Detalladas
+                    </button>
+                    <button class="btn btn-admin" id="backupDataBtn">
+                        <i class="fas fa-download"></i> Respaldar Datos
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección de Clasificados -->
+    <section class="classifieds-section" id="clasificados">
+        <div class="container">
+            <h2 class="section-title">Clasificados</h2>
+            <p class="section-subtitle">Publica, edita o elimina tus anuncios. Solo para usuarios suscritos.</p>
+            
+            <!-- Estado de autenticación -->
+            <div class="auth-status" id="authStatus">
+                <p>Debes <a href="#" id="authLink">iniciar sesión</a> para publicar clasificados.</p>
+            </div>
+            
+            <!-- Controles de clasificados (visible solo para usuarios autenticados) -->
+            <div class="classifieds-controls" id="classifiedsControls" style="display: none;">
+                <button class="btn btn-primary" id="addClassifiedBtn">
+                    <i class="fas fa-plus"></i> Publicar Nuevo Artículo
+                </button>
+                <div class="user-info" id="userInfo"></div>
+            </div>
+            
+            <!-- Formulario para agregar/editar clasificados -->
+            <div class="classified-form-container" id="classifiedFormContainer" style="display: none;">
+                <h3>Publicar Nuevo Clasificado</h3>
+                <form id="classifiedForm">
+                    <div class="form-group">
+                        <label for="classifiedTitle">Título *</label>
+                        <input type="text" id="classifiedTitle" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="classifiedCategory">Categoría *</label>
+                        <select id="classifiedCategory" required>
+                            <option value="">Selecciona una categoría</option>
+                            <option value="vehiculos">Vehículos</option>
+                            <option value="inmuebles">Inmuebles</option>
+                            <option value="empleos">Empleos</option>
+                            <option value="servicios">Servicios</option>
+                            <option value="productos">Productos</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="classifiedDescription">Descripción *</label>
+                        <textarea id="classifiedDescription" rows="4" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="classifiedPrice">Precio ($)</label>
+                        <input type="number" id="classifiedPrice" min="0" step="0.01">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="classifiedImage">Imagen (URL)</label>
+                        <input type="text" id="classifiedImage" placeholder="https://ejemplo.com/imagen.jpg">
+                        <small>Puedes subir tu imagen a un servicio como Imgur y pegar el enlace aquí</small>
+                    </div>
+                    
+                    <div class="form-group form-actions">
+                        <button type="submit" class="btn btn-primary">Publicar Clasificado</button>
+                        <button type="button" class="btn btn-outline" id="cancelFormBtn">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Lista de clasificados -->
+            <div class="classifieds-grid" id="classifiedsGrid">
+                <!-- Los clasificados se cargarán aquí dinámicamente -->
+                <div class="no-classifieds">
+                    <p>Aún no hay clasificados publicados. ¡Sé el primero!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección de Suscripción -->
+    <section class="subscription-section" id="suscribirse">
+        <div class="container">
+            <div class="subscription-content">
+                <h2>Suscríbete para publicar clasificados</h2>
+                <p>Como suscriptor tendrás acceso a:</p>
+                <ul class="benefits-list">
+                    <li><i class="fas fa-check-circle"></i> Publicar, editar y eliminar tus clasificados</li>
+                    <li><i class="fas fa-check-circle"></i> Hasta 5 fotos por artículo</li>
+                    <li><i class="fas fa-check-circle"></i> Destacar tus anuncios por más visibilidad</li>
+                    <li><i class="fas fa-check-circle"></i> Acceso a estadísticas de visualizaciones</li>
+                    <li><i class="fas fa-check-circle"></i> Noticias exclusivas y contenido premium</li>
+                </ul>
+                
+                <form class="subscription-form" id="subscriptionForm">
+                    <div class="form-group">
+                        <label for="subName">Nombre completo *</label>
+                        <input type="text" id="subName" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="subEmail">Correo electrónico *</label>
+                        <input type="email" id="subEmail" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="subPassword">Contraseña *</label>
+                        <input type="password" id="subPassword" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Suscribirse Ahora</button>
+                    <p class="terms-notice">Al suscribirte aceptas nuestros <a href="#">términos y condiciones</a>.</p>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal de Login/Registro -->
+    <div class="modal" id="authModal">
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose">&times;</button>
+            
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Iniciar Sesión</button>
+                <button class="auth-tab" data-tab="register">Registrarse</button>
+            </div>
+            
+            <div class="auth-form-container">
+                <form class="auth-form active" id="loginForm">
+                    <div class="form-group">
+                        <label for="loginEmail">Correo electrónico</label>
+                        <input type="email" id="loginEmail" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="loginPassword">Contraseña</label>
+                        <input type="password" id="loginPassword" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-block">Iniciar Sesión</button>
+                    <p class="auth-switch">¿No tienes cuenta? <a href="#" id="switchToRegister">Regístrate aquí</a></p>
+                </form>
+                
+                <form class="auth-form" id="registerForm">
+                    <div class="form-group">
+                        <label for="registerName">Nombre completo</label>
+                        <input type="text" id="registerName" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="registerEmail">Correo electrónico</label>
+                        <input type="email" id="registerEmail" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="registerPassword">Contraseña</label>
+                        <input type="password" id="registerPassword" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="registerConfirmPassword">Confirmar Contraseña</label>
+                        <input type="password" id="registerConfirmPassword" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-block">Crear Cuenta</button>
+                    <p class="auth-switch">¿Ya tienes cuenta? <a href="#" id="switchToLogin">Inicia sesión aquí</a></p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="main-footer" id="contacto">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h3>Noticias Online</h3>
+                    <p>Tu fuente confiable de noticias locales e internacionales. Información verificada y actualizada minuto a minuto.</p>
+                    <div class="footer-social">
+                        <a href="https://facebook.com/tuperfil" target="_blank" class="social-icon facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="https://instagram.com/tuperfil" target="_blank" class="social-icon instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="footer-col">
+                    <h4>Enlaces Rápidos</h4>
+                    <ul>
+                        <li><a href="#inicio">Inicio</a></li>
+                        <li><a href="#noticias">Noticias</a></li>
+                        <li><a href="#clasificados">Clasificados</a></li>
+                        <li><a href="#adminPanel">Admin</a></li>
+                        <li><a href="#suscribirse">Suscribirse</a></li>
+                        <li><a href="#contacto">Contacto</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-col">
+                    <h4>Categorías</h4>
+                    <ul>
+                        <li><a href="#">Política</a></li>
+                        <li><a href="#">Economía</a></li>
+                        <li><a href="#">Tecnología</a></li>
+                        <li><a href="#">Deportes</a></li>
+                        <li><a href="#">Cultura</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-col">
+                    <h4>Contacto</h4>
+                    <ul class="contact-info">
+                        <li><i class="fas fa-map-marker-alt"></i> Av. Principal 123, Ciudad</li>
+                        <li><i class="fas fa-phone"></i> (123) 456-7890</li>
+                        <li><i class="fas fa-envelope"></i> contacto@noticiasonline.com</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; <span class="current-year">2026</span> Noticias-Online. Todos los derechos reservados. | <a href="#">Política de Privacidad</a> | <a href="#">Términos de Uso</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal de Confirmación -->
+    <div class="confirm-modal" id="confirmModal">
+        <div class="confirm-content">
+            <h3 id="confirmTitle">Confirmar Acción</h3>
+            <p id="confirmMessage">¿Estás seguro de que quieres realizar esta acción?</p>
+            <div class="confirm-actions">
+                <button class="btn btn-danger" id="confirmActionBtn">Confirmar</button>
+                <button class="btn btn-outline" id="cancelActionBtn">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tu configuración -->
+    <script src="js/firebase-config.js"></script>
+
+    <!-- Scripts -->
+    <script src="js/auth.js"></script>
+    <script src="js/classifieds.js"></script>
+    <script src="js/admin.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
